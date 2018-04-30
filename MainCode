@@ -19,15 +19,21 @@ int fsrReading3;
 int fsrReading4;
 int fsrReading5;
 /*---- ultrasonic distance sensor------*/
-const int trigPin = 7;
-const int echoPin = 8;
+const int trigPin = 12;
+const int echoPin = 13;
 
 long duration;
 int distance;
 /*------------ LED lights---------------- */
 int leds =  11;
 volatile int i=100;//initializing a integer for incrementing and decrementing duty ratio.
+/*-----------Motor------------*/
+const int stepPin = 5; //CLK+
+const int dirPin = 2; //CW+ Directin of the motor
+const int enPin = 8;
 
+const int interruptPin_CW = 18;
+const int interruptPin_CCW = 19;
 
 
 void setup(void) {
@@ -36,7 +42,12 @@ void setup(void) {
   pinMode(leds, OUTPUT);   // sets the pin3 as output
     pinMode(trigPin, OUTPUT); //distance sensor
   pinMode(echoPin, INPUT);   //distance sensor
-  
+   pinMode(stepPin,OUTPUT); 
+  pinMode(dirPin,OUTPUT);
+  pinMode(enPin,OUTPUT);
+  pinMode(interruptPin_CW, INPUT);
+  pinMode(interruptPin_CCW, INPUT);
+  digitalWrite(enPin,LOW);
 }
  
 void loop(void) {
@@ -49,10 +60,28 @@ void loop(void) {
 
 /*--------------------LED lights---------------------------------------- */
   analogWrite(3, i);  // analogWrite values from 0 to 255
+  
+/*distance */  
+   digitalWrite(trigPin, LOW);  // Added this line
+  delayMicroseconds(2); // Added this line
+  digitalWrite(trigPin, HIGH);
+//  delayMicroseconds(1000); - Removed this line
+  delayMicroseconds(10); // Added this line
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration/2) / 29.1;
+
 /*--------combination with different pressure sensor ---------------- */
    if (fsrReading > 1 && fsrReading1 > 1) {
     i = 255;
     Serial.println(" Someone fell at location 0 & 1");
+    
+    if(digitalRead(interruptPin_CW)){
+    VMotor_CW();
+    if(distance < 10) {
+    //stop the motor
+    }
+    
   } 
    else if (fsrReading1 > 1 && fsrReading2 > 1) {
     i = 255;
@@ -69,17 +98,12 @@ void loop(void) {
      else if (fsrReading4 > 1 && fsrReading5 > 1) {
       i = 255;
     Serial.println(" Someone fell at location 4 & 5");
+  } 
+  else if (digitalRead(interruptPin_CCW)) {
+  VMotor_CCW();
   }
 
 /* ---------------- ultrasonic distance sensor---------------------*/
- digitalWrite(trigPin, LOW);  // Added this line
-  delayMicroseconds(2); // Added this line
-  digitalWrite(trigPin, HIGH);
-//  delayMicroseconds(1000); - Removed this line
-  delayMicroseconds(10); // Added this line
-  digitalWrite(trigPin, LOW);
-  duration = pulseIn(echoPin, HIGH);
-  distance = (duration/2) / 29.1;
 
 
   Serial.println("distance: ");
@@ -87,3 +111,28 @@ void loop(void) {
   
  delay(1000);
 } 
+
+void VMotor_CW() 
+{
+ digitalWrite(dirPin,HIGH); // Enables the motor to move in a particular direction
+  // Makes 200 pulses for making one full cycle rotation
+  for(int x = 0; x < 800; x++) 
+  {
+    digitalWrite(stepPin,HIGH); 
+    delayMicroseconds(500); 
+    digitalWrite(stepPin,LOW); 
+    delayMicroseconds(500); 
+  }
+}
+
+void VMotor_CCW()
+{
+  digitalWrite(dirPin,LOW); //Changes the rotations direction
+  // Makes 400 pulses for making two full cycle rotation
+  for(int x = 0; x < 800; x++) 
+  {
+    digitalWrite(stepPin,HIGH);
+    delayMicroseconds(500);
+    digitalWrite(stepPin,LOW);
+    delayMicroseconds(500);
+  }
