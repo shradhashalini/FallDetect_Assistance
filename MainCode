@@ -5,6 +5,22 @@ Then connect one end of a 10K resistor from Analog 0 to ground
  
 For more information see www.ladyada.net/learn/sensors/fsr.html */
  
+
+#define stp 2
+#define dir 3
+#define MS2 5
+#define EN  6
+
+//Declare variables for functions
+char user_input;
+int x;
+int y;
+int z = 0;
+// states variables that will be used in the program
+int numberOfStep = 0;
+ 
+ 
+ 
 int fsrPin = 0;     // the FSR and 10K pulldown are connected to a0
 int fsrPin1 = 1;
 int fsrPin2 = 2;
@@ -37,6 +53,14 @@ const int interruptPin_CCW = 19;
 
 
 void setup(void) {
+  pinMode(stp, OUTPUT);
+  pinMode(dir, OUTPUT);
+  pinMode(MS2, OUTPUT);
+  pinMode(EN, OUTPUT);
+  resetEDPins(); //Set step, direction, microstep and enable pins to default states
+
+
+
   // We'll send debugging information via the Serial monitor
   Serial.begin(9600);  
   pinMode(leds, OUTPUT);   // sets the pin3 as output
@@ -51,6 +75,10 @@ void setup(void) {
 }
  
 void loop(void) {
+ digitalWrite(EN, LOW); //Pull enable pin low to allow motor control
+
+
+
   fsrReading = analogRead(fsrPin); 
   fsrReading1 = analogRead(fsrPin1);
   fsrReading2 = analogRead(fsrPin2);
@@ -75,9 +103,12 @@ void loop(void) {
    if (fsrReading > 1 && fsrReading1 > 1) {
     i = 255;
     Serial.println(" Someone fell at location 0 & 1");
+    z = 200;
+    StepForwardDefault(z);
     
     if(digitalRead(interruptPin_CW)){
-    VMotor_CW();
+     VMotor_CW();
+    }
     if(distance < 10) {
     //stop the motor
     }
@@ -85,22 +116,31 @@ void loop(void) {
   } 
    else if (fsrReading1 > 1 && fsrReading2 > 1) {
     i = 255;
+    z = 400;
+    StepForwardDefault(z);
     Serial.println(" Someone fell at location 1 & 2");
   } 
    else if (fsrReading2 > 1 && fsrReading3 > 1) {
     i = 255;
+    z = 600;
+    StepForwardDefault(z);
     Serial.println(" Someone fell at location 2 & 3");
   }
      else if (fsrReading3 > 1 && fsrReading4 > 1) {
       i = 255;
+      z = 800;
+    StepForwardDefault(z);
     Serial.println(" Someone fell at location 3 & 4");
   }
      else if (fsrReading4 > 1 && fsrReading5 > 1) {
       i = 255;
+      z = 1000;
+    StepForwardDefault(z);
     Serial.println(" Someone fell at location 4 & 5");
   } 
   else if (digitalRead(interruptPin_CCW)) {
-  VMotor_CCW();
+    VMotor_CCW();
+    ReverseStepDefault(z);
   }
 
 /* ---------------- ultrasonic distance sensor---------------------*/
@@ -108,7 +148,7 @@ void loop(void) {
 
   Serial.println("distance: ");
     Serial.println(distance);
-  
+  resetEDPins();
  delay(1000);
 } 
 
@@ -136,3 +176,44 @@ void VMotor_CCW()
     digitalWrite(stepPin,LOW);
     delayMicroseconds(500);
   }
+
+
+void resetEDPins()
+{
+  digitalWrite(stp, LOW);
+  digitalWrite(dir, LOW);
+  digitalWrite(MS2, LOW);
+  digitalWrite(EN, HIGH);
+}
+
+//Default microstep mode function
+void StepForwardDefault(int steps)
+{
+  Serial.println("Moving forward at default step mode.");
+  digitalWrite(dir, LOW); //Pull direction pin low to move "forward"
+  while(numberOfStep < steps)  //Loop the forward stepping enough times for motion to be visible
+  {
+    digitalWrite(stp,HIGH); //Trigger one step forward
+    delay(1);
+    digitalWrite(stp,LOW); //Pull step pin low so it can be triggered again
+    delay(1);
+    steps++;
+  }
+}
+
+//Reverse default microstep mode function
+void ReverseStepDefault(int steps)
+{
+  Serial.println("Moving in reverse at default step mode.");
+  digitalWrite(dir, HIGH); //Pull direction pin high to move in "reverse"
+  while(steps > 0)//Loop the stepping enough times for motion to be visible
+  {  
+    digitalWrite(stp,HIGH); //Trigger one step
+    delay(1);
+    digitalWrite(stp,LOW); //Pull step pin low so it can be triggered again
+    delay(1);
+    numberOfStep--;
+  }
+  Serial.println("Enter new option");
+  Serial.println();
+}
