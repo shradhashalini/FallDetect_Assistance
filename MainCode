@@ -47,35 +47,26 @@ void loop(void) {
   fsrReading5 = analogRead(fsrPin5);
 
 /*--------------------LED lights---------------------------------------- */
- if (i<255)
-                { 
-                          analogWrite(3, i);  // analogWrite values from 0 to 255
-                          i++;//if pin0 is pressed and the duty ratio value is less than 255
-                          delay(30);
-                }
-                if (i==255)
-                {
-                    while(i != 0){
-                        i--;// if pin1 is pressed and the duty ratio value is greater than 0
-                        analogWrite(3, i);
-                        delay(30);
-                    }
-                }
-  
+  analogWrite(3, i);  // analogWrite values from 0 to 255
 /*--------combination with different pressure sensor ---------------- */
    if (fsrReading > 1 && fsrReading1 > 1) {
+    i = 255;
     Serial.println(" Someone fell at location 0 & 1");
   } 
    else if (fsrReading1 > 1 && fsrReading2 > 1) {
+    i = 255;
     Serial.println(" Someone fell at location 1 & 2");
   } 
    else if (fsrReading2 > 1 && fsrReading3 > 1) {
+    i = 255;
     Serial.println(" Someone fell at location 2 & 3");
   }
      else if (fsrReading3 > 1 && fsrReading4 > 1) {
+      i = 255;
     Serial.println(" Someone fell at location 3 & 4");
   }
      else if (fsrReading4 > 1 && fsrReading5 > 1) {
+      i = 255;
     Serial.println(" Someone fell at location 4 & 5");
   }
 
