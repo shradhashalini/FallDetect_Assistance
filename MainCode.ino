@@ -214,6 +214,4 @@ void ReverseStepDefault(int steps)
     delay(1);
     numberOfStep--;
   }
-  Serial.println("Enter new option");
-  Serial.println();
 }
