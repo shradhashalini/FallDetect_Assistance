@@ -26,7 +26,7 @@ long duration;
 int distance;
 /*------------ LED lights---------------- */
 int leds =  11;
-volatile int i=0;//initializing a integer for incrementing and decrementing duty ratio.
+volatile int i=100;//initializing a integer for incrementing and decrementing duty ratio.
 
 
 
@@ -36,6 +36,7 @@ void setup(void) {
   pinMode(leds, OUTPUT);   // sets the pin3 as output
     pinMode(trigPin, OUTPUT); //distance sensor
   pinMode(echoPin, INPUT);   //distance sensor
+  
 }
  
 void loop(void) {
