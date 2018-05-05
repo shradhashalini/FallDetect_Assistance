@@ -1,0 +1,178 @@
+// defines pins numbers
+const int stepPin = 5; //CLK+
+const int dirPin = 2; //CW+ Directin of the motor
+const int enPin = 8;
+const int ledPin = 13;
+const int interruptPin_CW = 18;
+const int interruptPin_CCW = 19;
+long X = 0;
+long Y = 0;
+long Z = 0;
+bool is_reset = 0;
+int position_var;
+long target_step;
+
+
+//small linear actuator
+//Declare pin functions on Redboard
+#define stp 22
+#define dir 12
+#define EN  11
+
+// states variables that will be used in the program
+long numberOfStep = 0;
+
+
+
+
+void setup() { 
+  position_var = 3;
+ 
+  // Sets the two pins as Outputs
+  Serial.begin(2000000);
+  pinMode(stepPin,OUTPUT); 
+  pinMode(dirPin,OUTPUT);
+  pinMode(enPin,OUTPUT);
+  pinMode(interruptPin_CW, INPUT);
+  pinMode(interruptPin_CCW, INPUT);
+  digitalWrite(enPin,LOW);
+  //attachInterrupt(digitalPinToInterrupt(interruptPin_CW), VMotor_CW, RISING);
+  //attachInterrupt(digitalPinToInterrupt(interruptPin_CCW), VMotor_CCW, RISING);
+
+  //small linear actuator
+   pinMode(stp, OUTPUT);
+  pinMode(dir, OUTPUT);
+  pinMode(EN, OUTPUT);
+  resetEDPins(); //Set step, direction, microstep and enable pins to default states
+  
+}
+void loop() {
+  
+        digitalWrite(EN, LOW); //Pull enable pin low to allow motor contro
+       //StepForwardDefault();
+        resetEDPins();
+
+  if(position_var == 1) {
+    Serial.println("Position is 1");
+    target_step = 42667;
+    Serial.print("target step = ");
+    Serial.println(target_step);
+    VMotor_CW1(target_step); 
+    position_var = 0;
+
+  }
+
+    if(position_var == 2) {
+    Serial.println("Position is 2");
+    target_step = 105333;
+    Serial.print("target step = ");
+    Serial.println(target_step);
+    VMotor_CW1(target_step); 
+    position_var = 0;
+
+  }
+
+  if(position_var == 3) {
+    Serial.println("Position is 1");
+    target_step = 105333;
+    Serial.print("target step = ");
+    Serial.println(target_step);
+    VMotor_CW1(target_step);
+    StepForwardDefault(); 
+    position_var = 0;
+
+  }
+  
+  if(digitalRead(interruptPin_CCW) == 1 ){ // reset
+    reset(); 
+   
+  }
+//  resetEDPins();
+
+}
+
+
+
+/*-----------Function Calling-----------*/
+
+
+void VMotor_CW1(long target_step) 
+{
+  Serial.print("target step = ");
+  Serial.println(target_step);
+ digitalWrite(dirPin,LOW); // MOVE TO THE LEFT SIDE.
+  // Makes 200 pulses for making one full cycle rotation
+  for (X = X; X <= target_step; X++) 
+  {
+    digitalWrite(stepPin,HIGH); 
+    delayMicroseconds(5); 
+    digitalWrite(stepPin,LOW); 
+    delayMicroseconds(5); 
+    Serial.print("current steps = ");
+    Serial.println(X);
+    
+    if(digitalRead(interruptPin_CCW) == 1){
+    reset();
+    break;
+   }
+  }
+}
+
+void reset() // to go to 
+{
+  digitalWrite(dirPin,HIGH); //MOVE TO THE RIGHT SIDE.
+  // Makes 400 pulses for making two full cycle rotation
+ for (X = X; X >= 0; X--) 
+  {
+
+    digitalWrite(stepPin,HIGH);
+    delayMicroseconds(5);
+    digitalWrite(stepPin,LOW);
+    delayMicroseconds(5);
+    
+    Serial.println(X);
+  }
+  X = 0;
+}
+
+//small linear actuator
+void resetEDPins()
+{
+  digitalWrite(stp, LOW);
+  digitalWrite(dir, LOW);
+  digitalWrite(EN, HIGH);
+}
+
+//Default microstep mode function
+void StepForwardDefault()
+{
+  Serial.println("Moving forward at default step mode.");
+  digitalWrite(dir, HIGH); //Pull direction pin low to move "forward"
+  while(numberOfStep < 66000)  //Loop the forward stepping enough times for motion to be visible
+  {
+    digitalWrite(stp,HIGH); //Trigger one step forward
+    delayMicroseconds(350);
+    digitalWrite(stp,LOW); //Pull step pin low so it can be triggered again
+    delayMicroseconds(350);
+   Serial.print("Invalid option entered: ");
+   Serial.println(numberOfStep);
+    numberOfStep++;
+  }
+}
+
+//Reverse default microstep mode function
+void ReverseStepDefault()
+{
+  Serial.println("Moving in reverse at default step mode.");
+
+//Reset Easy Driver pins to default states
+  digitalWrite(dir, HIGH); //Pull direction pin high to move in "reverse"
+  while(numberOfStep > 0)//Loop the stepping enough times for motion to be visible
+  {  
+    digitalWrite(stp,HIGH); //Trigger one step
+    delayMicroseconds(500);
+    digitalWrite(stp,LOW); //Pull step pin low so it can be triggered again
+    delayMicroseconds(500);
+    numberOfStep--;
+  }
+}
