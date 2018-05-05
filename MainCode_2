@@ -1,0 +1,108 @@
+// defines pins numbers
+const int stepPin = 5; //CLK+
+const int dirPin = 2; //CW+ Directin of the motor
+const int enPin = 8;
+const int ledPin = 13;
+const int interruptPin_CW = 18;
+const int interruptPin_CCW = 19;
+long X = 0;
+long Y = 0;
+long Z = 0;
+bool is_reset = 0;
+int position_var;
+long target_step;
+
+void setup() { 
+  position_var = 2;
+ 
+  // Sets the two pins as Outputs
+  Serial.begin(2000000);
+  pinMode(stepPin,OUTPUT); 
+  pinMode(dirPin,OUTPUT);
+  pinMode(enPin,OUTPUT);
+  pinMode(interruptPin_CW, INPUT);
+  pinMode(interruptPin_CCW, INPUT);
+  digitalWrite(enPin,LOW);
+  //attachInterrupt(digitalPinToInterrupt(interruptPin_CW), VMotor_CW, RISING);
+  //attachInterrupt(digitalPinToInterrupt(interruptPin_CCW), VMotor_CCW, RISING);
+}
+void loop() {
+//  if(digitalRead(interruptPin_CW)){
+//    VMotor_CW();
+//  }
+//    if(digitalRead(interruptPin_CCW)){
+//    VMotor_CCW();
+//  }
+  if(position_var == 1) {
+    Serial.println("Position is 1");
+    target_step = 42667;
+    Serial.print("target step = ");
+    Serial.println(target_step);
+    VMotor_CW1(target_step); 
+    position_var = 2;
+
+  }
+
+    if(position_var == 2) {
+    Serial.println("Position is 2");
+    target_step = 85333;
+    Serial.println(target_step);
+    VMotor_CW1(target_step); 
+    position_var = 3;
+
+  }
+
+//  if(position_var == 3) {
+//    Serial.println("Position is 1");
+//    target_step = 42667;
+//    Serial.println(target_step);
+//    VMotor_CW1(target_step); 
+//   
+//
+//  }
+  
+  if(digitalRead(interruptPin_CCW) == 1 ){ // reset
+    reset(); 
+   
+  }
+
+
+}
+void VMotor_CW1(long target_step) 
+{
+  Serial.print("target step = ");
+  Serial.println(target_step);
+ digitalWrite(dirPin,LOW); // MOVE TO THE LEFT SIDE.
+  // Makes 200 pulses for making one full cycle rotation
+  for (X = X; X <= target_step; X++) 
+  {
+    digitalWrite(stepPin,HIGH); 
+    delayMicroseconds(5); 
+    digitalWrite(stepPin,LOW); 
+    delayMicroseconds(5); 
+    Serial.print("current steps = ");
+    Serial.println(X);
+    
+    if(digitalRead(interruptPin_CCW) == 1){
+    reset();
+    break;
+  }
+  }
+}
+
+void reset() // to go to 
+{
+  digitalWrite(dirPin,HIGH); //MOVE TO THE RIGHT SIDE.
+  // Makes 400 pulses for making two full cycle rotation
+ for (X = X; X >= 0; X--) 
+  {
+
+    digitalWrite(stepPin,HIGH);
+    delayMicroseconds(5);
+    digitalWrite(stepPin,LOW);
+    delayMicroseconds(5);
+    
+    Serial.println(X);
+  }
+  X = 0;
+}
