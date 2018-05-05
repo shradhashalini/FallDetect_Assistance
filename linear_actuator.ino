@@ -1,3 +1,5 @@
+https://learn.sparkfun.com/tutorials/easy-driver-hook-up-guide
+
 /****************************************************************************** 
 SparkFun Easy Driver Basic Demo
 Toni Klopfenstein @ SparkFun Electronics
