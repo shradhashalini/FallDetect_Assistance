@@ -18,10 +18,9 @@ Example based off of demos by Brian Schmalz (designer of the Easy Driver).
 http://www.schmalzhaus.com/EasyDriver/Examples/EasyDriverExamples.html
 ******************************************************************************/
 //Declare pin functions on Redboard
-#define stp 2
-#define dir 3
-#define MS2 5
-#define EN  6
+#define stp 22
+#define dir 12
+#define EN  11
 
 //Declare variables for functions
 char user_input;
@@ -33,7 +32,6 @@ int numberOfStep = 0;
 void setup() {
   pinMode(stp, OUTPUT);
   pinMode(dir, OUTPUT);
-  pinMode(MS2, OUTPUT);
   pinMode(EN, OUTPUT);
   resetEDPins(); //Set step, direction, microstep and enable pins to default states
   Serial.begin(9600); //Open Serial connection for debugging
@@ -72,7 +70,6 @@ void resetEDPins()
 {
   digitalWrite(stp, LOW);
   digitalWrite(dir, LOW);
-  digitalWrite(MS2, LOW);
   digitalWrite(EN, HIGH);
 }
 
