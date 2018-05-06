@@ -237,7 +237,9 @@ void reverse_vertical_motor()
   }
 }
 void pullUp_Button(){
-
+  Serial.print("Vertical step = ");
+  Serial.println(vertical_step);
+  digitalWrite(dirPin2,HIGH); // MOVE TO THE LEFT SIDE.
   for (int x = vertical_step; x >= (vertical_step-500); x--) 
   {
     digitalWrite(stepPin2,HIGH); 
