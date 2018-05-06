@@ -237,8 +237,20 @@ void reverse_vertical_motor()
   }
 }
 void pullUp_Button(){
-  
-  
 
+  for (int x = vertical_step; x >= 0; x--) 
+  {
+    digitalWrite(stepPin2,HIGH); 
+    delayMicroseconds(1500); 
+    digitalWrite(stepPin2,LOW); 
+    delayMicroseconds(1500); 
+    Serial.print("current steps = ");
+    Serial.println(x);
+    
+    if(digitalRead(interruptPin_CCW) == 1){
+    reset();
+      break;
+      }
+  }
 
 }
