@@ -17,7 +17,7 @@ long Z = 0;
 bool is_reset = 0;
 int position_var;
 long target_step = 0;
-long vertical_step = 0;
+long vertical_step = 5000;
 
 
 //small linear actuator
@@ -201,7 +201,7 @@ void vertical_motor()
   Serial.println(vertical_step);
   digitalWrite(dirPin2,LOW); // MOVE TO THE LEFT SIDE.
   // Makes 200 pulses for making one full cycle rotation
-  for (int x = 0; x <= 5000; x++) 
+  for (int x = 0; x <= vertical_step; x++) 
   {
     digitalWrite(stepPin2,HIGH); 
     delayMicroseconds(1500); 
@@ -221,7 +221,7 @@ void reverse_vertical_motor()
   Serial.println(vertical_step);
   digitalWrite(dirPin2,HIGH); // MOVE TO THE LEFT SIDE.
   // Makes 200 pulses for making one full cycle rotation
-  for (int x = 5000; x >= 0; x--) 
+  for (int x = vertical_step; x >= 0; x--) 
   {
     digitalWrite(stepPin2,HIGH); 
     delayMicroseconds(1500); 
@@ -232,7 +232,13 @@ void reverse_vertical_motor()
     
     if(digitalRead(interruptPin_CCW) == 1){
     reset();
-    break;
+      break;
    }
   }
+}
+void pullUp_Button(){
+  
+  
+
+
 }
